@@ -1,12 +1,11 @@
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { authenticate } from '@google-cloud/local-auth'
-import { google } from 'googleapis'
-import { start } from 'repl';
+import { authenticate } from '@google-cloud/local-auth';
+import { google } from 'googleapis';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar'];
 const TOKEN_PATH = join(process.cwd(), 'token.json');
-const CREDENTIALS_PATH = join(process.cwd(), 'credentials.json');
+const CREDENTIALS_PATH = join(process.cwd(), 'kaptenen_credentials.json');
 
 async function loadSavedCredentialsIfExist() {
     try {
