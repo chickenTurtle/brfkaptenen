@@ -21,7 +21,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <DateSelect /> : <Home />} />
+      <Route path="/" element={user ? <DateSelect user={user} /> : <Home />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />

@@ -1,4 +1,4 @@
 node_modules/
-firebase_admin.json
+dev_creds.json
 kaptenen_credentials.json
 lib/

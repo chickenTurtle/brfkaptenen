@@ -17,7 +17,9 @@ export async function isAuthenticated(req, res, next) {
 
     try {
         const decodedToken = await admin.auth().verifyIdToken(token);
-        res.locals = { ...res.locals, uid: decodedToken.uid, role: decodedToken.role, email: decodedToken.email }
+        req.user = { uid: decodedToken.uid, role: decodedToken.role, email: decodedToken.email }
+        const user = await admin.auth().getUser(req.user.uid)
+        req.user = { ...req.user, ...user }
         return next();
     }
     catch (err) {

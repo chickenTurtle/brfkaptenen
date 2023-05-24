@@ -3,19 +3,13 @@ import "react-date-range/dist/theme/default.css"; // theme css file
 import { DateRange } from "react-date-range";
 import { useEffect, useState } from "react";
 import { sv } from "date-fns/locale";
+import { book, deleteBooking } from "../api";
 
 const CAL_ID = process.env.REACT_APP_CAL_ID
 const CAL_URL = `https://www.googleapis.com/calendar/v3/calendars/${CAL_ID}/events?calendarId=${CAL_ID}&singleEvents=true&timeZone=Europe%2FStockholm&maxAttendees=1&maxResults=250&sanitizeHtml=true&timeMin=${new Date().toISOString()}&key=AIzaSyBNlYH01_9Hc5S1J9vuFmu2nUqBZJNAXxs`;
 
-let book = (startDate, endDate) => {
-  const url = process.env.REACT_APP_API_URL;
 
-  fetch(url).then((res) => {
-    res.text().then((r) => console.log(r, startDate, endDate));
-  });
-};
-
-function DateSelect() {
+function DateSelect(props) {
   let today = new Date();
   today.setDate(today.getDate() + 1);
   const selectionRange = {
@@ -64,7 +58,7 @@ function DateSelect() {
       />
       Boka från {range.startDate.toLocaleDateString("sv")} kl 12.00 till{" "}
       {endDate.toLocaleDateString("sv")} kl 12.00
-      <button onClick={() => book(range.startDate, range.endDate)}>Boka</button>
+      <button onClick={() => book(props.user, range.startDate, range.endDate)}>Boka</button>
     </div>
   );
 }
