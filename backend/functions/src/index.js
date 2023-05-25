@@ -15,32 +15,43 @@ admin.initializeApp({
 const app = express();
 app.use(bodyParser.json())
 
-app.get('/', (req, res) => {
-    return res.status(200).send()
+app.get('/listevents', isAuthenticated, (req, res) => {
+    listEvents().then((events) => {
+        console.log(events)
+        res.status(200).json(events.data.items)
+        res.send()
+    })
 })
 
 app.post('/create', isAuthenticated, (req, res) => {
     let { startDate, endDate } = req.body;
     let { user } = req;
-    createEvent(startDate, endDate, user.displayName, user.email).then((event) => {
-        if (event.status == 200)
-            return res.status(200).send()
-        return res.status(500).send()
-    }).catch((err) => {
-        console.log(err)
-        return res.status(500).send()
-    })
+    createEvent(startDate, endDate, user.displayName, user.email)
+        .then((event) => {
+            if (event.status == 200)
+                res.status(200).json(event.data).send()
+            else
+                res.status(500).send()
+        }).catch((err) => {
+            res.status(err.code).json(err).send()
+        })
 })
 
 app.post('/delete', isAuthenticated, (req, res) => {
-    return res.status(200).send()
+    res.status(200).send()
 })
 
 app.post('/signup', (req, res) => {
     let { name, email, password } = req.body;
+    if (!name)
+        res.status(500).json({ message: "Name is required.", code: "name" }).send()
     signup(name, email, password)
-        .then(() => res.status(200).send())
-        .catch(() => res.status(500).send());
+        .then((user) => {
+            console.log(user)
+            res.status(200).send();
+        }).catch((err) => {
+            res.status(500).json(err).send()
+        });
 })
 
 

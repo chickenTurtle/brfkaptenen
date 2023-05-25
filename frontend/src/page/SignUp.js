@@ -7,10 +7,11 @@ import { auth } from "../firebase";
 
 function SignUp() {
   const navigate = useNavigate();
+  let [loading, setLoading] = useState(false);
   let [email, setEmail] = useState("");
   let [name, setName] = useState("");
   let [password, setPassword] = useState("");
-  let [error, setError] = useState();
+  let [error, setError] = useState({});
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -20,17 +21,33 @@ function SignUp() {
 
   let onSignUp = (e) => {
     e.preventDefault();
-    signUp(name, email, password).then(() => {
-      navigate("/");
-    }).catch((error) => {
-      setError(error);
+    setLoading(true)
+    signUp(name, email, password).then((res) => {
+      if (res.status === 200)
+        navigate("/");
+      else {
+        res.json().then((err) => {
+          if (err.code?.match("email"))
+            setError({ "email": err.message })
+          else if (err.code?.match("password"))
+            setError({ "password": err.message })
+          else if (err.code?.match("name"))
+            setError({ "name": err.message })
+          else
+            setError({ "general": err.message })
+        })
+      }
+    }).catch(() => {
+      setError({ "general": "Något gick fel" });
+    }).finally(() => {
+      setLoading(false)
     })
   };
 
   return (
     <Box
       sx={{
-        marginTop: 8,
+        marginTop: 12,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -41,22 +58,23 @@ function SignUp() {
         Skapa konto
       </Typography>
       <Box component="form" noValidate onSubmit={onSignUp} sx={{ mt: 3 }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12}>
+        <Grid container spacing={2} width="400px">
+          <Grid item xs={12} width={25}>
             <TextField
               autoFocus
-              required
               fullWidth
+              required
               id="name"
               label="Namn"
               name="name"
               value={name}
+              disabled={loading}
               onChange={(e) => setName(e.target.value)}
-              error={error ? true : false}
-              helperText={error ? "Något gick fel" : ""}
+              error={error['name'] || error['general'] ? true : false}
+              helperText={error['name'] || error['name'] ? error['name'] || error['general'] : ""}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} width={25}>
             <TextField
               required
               fullWidth
@@ -65,12 +83,13 @@ function SignUp() {
               name="email"
               autoComplete="email"
               value={email}
+              disabled={loading}
               onChange={(e) => setEmail(e.target.value)}
-              error={error ? true : false}
-              helperText={error ? "Något gick fel" : ""}
+              error={error['email'] || error['general'] ? true : false}
+              helperText={error['email'] || error['general'] ? error['email'] || error['general'] : ""}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} width={25}>
             <TextField
               required
               fullWidth
@@ -80,9 +99,10 @@ function SignUp() {
               id="password"
               autoComplete="new-password"
               value={password}
+              disabled={loading}
               onChange={(e) => setPassword(e.target.value)}
-              error={error ? true : false}
-              helperText={error ? "Något gick fel" : ""}
+              error={error['password'] || error['general'] ? true : false}
+              helperText={error['password'] || error['general'] ? error['password'] || error['general'] : ""}
             />
           </Grid>
         </Grid>
@@ -91,6 +111,7 @@ function SignUp() {
           fullWidth
           variant="contained"
           sx={{ mt: 3, mb: 2 }}
+          disabled={loading}
         >
           Skapa konto
         </Button>

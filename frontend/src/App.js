@@ -20,14 +20,14 @@ function App() {
     }
   });
 
-  return user == "not_checked" ? (
+  return user === "not_checked" ? (
     <Loading />
   ) : (
     <Routes>
-      <Route path="/" element={user ? <DateSelect user={user} /> : <Home />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
+      <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
     </Routes>
   );
 }

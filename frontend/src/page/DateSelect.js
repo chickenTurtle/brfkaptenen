@@ -3,32 +3,9 @@ import "react-date-range/dist/theme/default.css";
 import { DateRange } from "react-date-range";
 import { useEffect, useState } from "react";
 import { sv } from "date-fns/locale";
-import { book } from "../api";
+import { book, getEvents } from "../api";
 import { Box, Button, Grid, InputAdornment, TextField, Typography } from "@mui/material";
 import Loading from "../components/Loading";
-
-
-const CAL_ID = process.env.REACT_APP_CAL_ID
-const CAL_URL = `https://www.googleapis.com/calendar/v3/calendars/${CAL_ID}/events?calendarId=${CAL_ID}&singleEvents=true&timeZone=Europe%2FStockholm&maxAttendees=1&maxResults=250&sanitizeHtml=true&timeMin=${new Date().toISOString()}&key=AIzaSyBNlYH01_9Hc5S1J9vuFmu2nUqBZJNAXxs`;
-
-const style = {
-  Input: {
-    "&.Mui-disabled": {
-      color: "white",
-      opacity: 1,
-      WebkitTextFillColor: "white"
-    },
-  },
-  Label: {
-    "&.Mui-disabled": {
-      color: "white",
-      opacity: 1,
-    }
-  },
-  P: {
-    color: "white"
-  }
-}
 
 function DateSelect(props) {
   let today = new Date();
@@ -41,40 +18,52 @@ function DateSelect(props) {
 
   let [range, setRange] = useState(selectionRange);
   let [disabledDates, setDisabledDates] = useState([]);
-  let [loading, setLoading] = useState(false);
+  let [loading, setLoading] = useState(true);
   let [error, setError] = useState();
 
+  let updateDisabledDates = () => {
+    return getEvents(props.user).then((res) => res.json().then((events) => {
+      let t = [];
+      for (var item of events) {
+        let start = new Date(Date.parse(item.start.dateTime));
+        let end = new Date(Date.parse(item.end.dateTime));
+        for (var s = start; s <= end; s.setDate(s.getDate() + 1)) {
+          t.push(new Date(s));
+        }
+      }
+      setDisabledDates(t);
+    }));
+  }
 
   let onBook = () => {
     setLoading(true);
     book(props.user, range.startDate, range.endDate)
-      .then((res) => console.log(res))
-      .catch((err) => {
-        if (err.status === 500)
-          setError(err.text)
+      .then((res) => {
+        if (res.status === 200) {
+          setRange(selectionRange);
+        }
+        else if (res.status === 500) {
+          res.json().then((err) => {
+            setError(err.message);
+          })
+        }
         else
           setError("Något gick fel")
       })
-      .finally(setLoading(false))
+      .catch(() => {
+        setError("Något gick fel")
+      })
+      .finally(() => {
+        updateDisabledDates().then(() => setLoading(false));
+      })
   }
 
   useEffect(() => {
-    fetch(CAL_URL)
-      .then((res) => res.json())
-      .then((r) => {
-        let t = [];
-        for (var item of r.items) {
-          let start = new Date(Date.parse(item.start.date));
-          let end = new Date(Date.parse(item.end.date));
-          for (var s = start; s < end; s.setDate(s.getDate() + 1)) {
-            t.push(new Date(s));
-          }
-        }
-        setDisabledDates(t);
-      });
+    updateDisabledDates().then(() => setLoading(false))
   }, []);
 
   let handleSelect = (ranges) => {
+    console.log(ranges)
     setRange(ranges.selection);
   };
 
@@ -138,6 +127,25 @@ function DateSelect(props) {
       </Button>
     </Box >
   );
+}
+
+const style = {
+  Input: {
+    "&.Mui-disabled": {
+      color: "white",
+      opacity: 1,
+      WebkitTextFillColor: "white"
+    },
+  },
+  Label: {
+    "&.Mui-disabled": {
+      color: "white",
+      opacity: 1,
+    }
+  },
+  P: {
+    color: "white"
+  }
 }
 
 export default DateSelect;

@@ -19,26 +19,19 @@ async function authorize() {
 async function listEvents() {
     await authorize();
     const calendar = google.calendar({ version: 'v3' });
-    const res = await calendar.events.list({
+    return calendar.events.list({
         calendarId: process.env.CALENDAR_ID,
         timeMin: new Date().toISOString(),
         maxResults: 10,
         singleEvents: true,
         orderBy: 'startTime',
     });
-    const events = res.data.items;
-    if (!events || events.length === 0) {
-        return;
-    }
-    events.map((event, i) => {
-        const start = event.start.dateTime || event.start.date;
-    });
 }
 
 async function createEvent(startDate, endDate, name, email) {
     await authorize();
     const calendar = google.calendar({ version: 'v3' });
-    return await calendar.events.insert({
+    return calendar.events.insert({
         calendarId: process.env.CALENDAR_ID,
         requestBody: {
             summary: `${name}`,
@@ -63,11 +56,10 @@ async function createEvent(startDate, endDate, name, email) {
 async function deleteEvent(eventId) {
     await authorize();
     const calendar = google.calendar({ version: 'v3' });
-    const res = await calendar.events.delete({
+    return calendar.events.delete({
         calendarId: process.env.CALENDAR_ID,
         eventId: eventId
     })
-    return res
 }
 
 async function signup(name, email, password) {
