@@ -7,9 +7,10 @@ import DateSelect from "./page/DateSelect";
 import SignUp from "./page/SignUp";
 import Login from "./page/Login";
 import Logout from "./page/Logout";
+import Loading from "./components/Loading";
 
 function App() {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState("not_checked");
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -19,7 +20,9 @@ function App() {
     }
   });
 
-  return (
+  return user == "not_checked" ? (
+    <Loading />
+  ) : (
     <Routes>
       <Route path="/" element={user ? <DateSelect user={user} /> : <Home />} />
       <Route path="/signup" element={<SignUp />} />

@@ -21,9 +21,7 @@ let post = (url, auth, body) => {
 export let book = (user, startDate, endDate) => {
     const url = process.env.REACT_APP_API_URL + 'create';
 
-    post(url, user.accessToken, { startDate, endDate }).then((res) => {
-        res.text().then((r) => console.log(r));
-    });
+    return post(url, user.accessToken, { startDate, endDate });
 };
 
 export let deleteBooking = (user, id) => {
