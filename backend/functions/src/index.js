@@ -6,6 +6,7 @@ import { join } from 'path';
 import * as bodyParser from 'body-parser';
 import { listEvents, signup, createEvent } from "./google";
 import { isAuthenticated } from './auth';
+import { start } from 'repl';
 const serviceAccount = require(join(process.cwd(), "dev_creds.json"));
 
 admin.initializeApp({
@@ -17,40 +18,40 @@ app.use(bodyParser.json())
 
 app.get('/listevents', isAuthenticated, (req, res) => {
     listEvents().then((events) => {
-        console.log(events)
-        res.status(200).json(events.data.items)
-        res.send()
+        return res.status(200).send(events.data.items)
     })
 })
 
 app.post('/create', isAuthenticated, (req, res) => {
     let { startDate, endDate } = req.body;
     let { user } = req;
+    if (startDate === endDate)
+        return res.status(500).send({ message: "Du måste boka minst 1 natt" })
+
     createEvent(startDate, endDate, user.displayName, user.email)
         .then((event) => {
             if (event.status == 200)
-                res.status(200).json(event.data).send()
+                return res.status(200).send(event.data)
             else
-                res.status(500).send()
+                return res.status(500).send()
         }).catch((err) => {
-            res.status(err.code).json(err).send()
+            return res.status(err.code).send(err)
         })
 })
 
 app.post('/delete', isAuthenticated, (req, res) => {
-    res.status(200).send()
+    return res.status(200).send()
 })
 
 app.post('/signup', (req, res) => {
     let { name, email, password } = req.body;
     if (!name)
-        res.status(500).json({ message: "Name is required.", code: "name" }).send()
+        res.status(500).send({ message: "Name is required.", code: "name" })
     signup(name, email, password)
         .then((user) => {
-            console.log(user)
-            res.status(200).send();
+            return res.status(200).send();
         }).catch((err) => {
-            res.status(500).json(err).send()
+            return res.status(500).send(err)
         });
 })
 

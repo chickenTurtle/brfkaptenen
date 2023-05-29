@@ -13,7 +13,7 @@ async function authorize() {
         keyFile: CREDENTIALS_PATH
     });
     const authClient = await auth.getClient();
-    google.options({ auth: authClient });
+    return google.options({ auth: authClient });
 }
 
 async function listEvents() {
