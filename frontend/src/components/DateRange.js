@@ -57,16 +57,15 @@ function DateRange(props) {
             </Typography>
         </IconButton>;
 
-        if (isDisabled) {
+        if (isDisabled)
             inner =
                 <IconButton disabled={true} className='day day-disabled'>
                     <Typography>
                         {day.getDate()}
                     </Typography>
                 </IconButton>
-        }
 
-        if (isCheckoutOnly) {
+        if (isCheckoutOnly)
             inner =
                 <Tooltip title="Endast utcheckning">
                     <IconButton className='day day-check-out-only'>
@@ -75,25 +74,22 @@ function DateRange(props) {
                         </Typography>
                     </IconButton>
                 </Tooltip>
-        }
 
-        if (isCheckIn) {
+        if (isCheckIn)
             inner =
                 <IconButton style={{ background: "black" }} className='day day-check-in'>
                     <Typography>
                         {day.getDate()}
                     </Typography>
                 </IconButton>
-        }
 
-        if (isCheckOut) {
+        if (isCheckOut)
             inner =
                 <IconButton style={{ background: "black" }} className='day day-check-out'>
                     <Typography>
                         {day.getDate()}
                     </Typography>
                 </IconButton>
-        }
 
         return (
             <td className={isSelected ? ('selected' + ((isCheckOut ? " last" : "") || (isCheckIn ? " first" : ""))) : ""} key={format(day, "yyyyMMdd")}>

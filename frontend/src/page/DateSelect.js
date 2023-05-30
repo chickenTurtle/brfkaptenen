@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { book, getEvents } from "../api";
-import { Box, Button, Grid, InputAdornment, TextField, Typography } from "@mui/material";
+import { Box, Button, Grid, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 import Loading from "../components/Loading";
 import DateRange from "../components/DateRange";
 
@@ -131,12 +131,14 @@ function DateSelect(props) {
       <Typography mb={2} color="error">
         {error ? error : ""}
       </Typography>
-      <Button variant="contained" onClick={() => clearDates()} disabled={loading}>
-        Rensa datum
-      </Button>
-      <Button variant="contained" onClick={() => onBook()} disabled={loading}>
-        Boka
-      </Button>
+      <Stack direction="row" spacing={2}>
+        <Button variant="contained" onClick={() => clearDates()} disabled={loading}>
+          Rensa datum
+        </Button>
+        <Button variant="contained" onClick={() => onBook()} disabled={loading}>
+          Boka
+        </Button>
+      </Stack>
     </Box >
   );
 }

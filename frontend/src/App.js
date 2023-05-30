@@ -8,7 +8,6 @@ import SignUp from "./page/SignUp";
 import Login from "./page/Login";
 import Logout from "./page/Logout";
 import Loading from "./components/Loading";
-import DateRange from "./components/DateRange";
 
 function App() {
   const [user, setUser] = useState("not_checked");
