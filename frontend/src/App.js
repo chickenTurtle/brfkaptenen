@@ -8,6 +8,7 @@ import SignUp from "./page/SignUp";
 import Login from "./page/Login";
 import Logout from "./page/Logout";
 import Loading from "./components/Loading";
+import DateRange from "./components/DateRange";
 
 function App() {
   const [user, setUser] = useState("not_checked");
@@ -27,7 +28,8 @@ function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
-      <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
+      {/* <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} /> */}
+      <Route path="/*" element={<DateRange />} />
     </Routes>
   );
 }

@@ -26,3 +26,43 @@ code {
   font-size: calc(10px + 2vmin);
   color: white;
 }
+
+.calendar-day {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.calendar {
+  display: flex;
+}
+
+table {
+  margin: 1rem
+}
+
+.table-month {
+  text-align: center;
+}
+
+.calendar-buttons {
+  position: relative;
+}
+
+.calendar-button-next {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.calendar-button-prev {
+  position: absolute;
+  left: 28px;
+  top: 10px;
+}
+
+.calendar-container {
+  width: 660px;
+}
