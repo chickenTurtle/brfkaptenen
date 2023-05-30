@@ -1,71 +1,104 @@
-import { startOfMonth, addMonths, setDefaultOptions, format, addDays, getYear, getMonth } from 'date-fns';
+import { startOfMonth, addMonths, setDefaultOptions, format, addDays, getYear, isBefore, isEqual, closestIndexTo, isSameDay, isAfter, subDays } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import ArrowBackIos from "@mui/icons-material/ArrowBackIos"
 import ArrowForwardIos from "@mui/icons-material/ArrowForwardIos"
-
-
-import { useState } from 'react';
-import { Button, IconButton, Typography } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { IconButton, Tooltip, Typography } from '@mui/material';
 setDefaultOptions({ locale: sv })
 
 function DateRange(props) {
     let [thisMonth, setThisMonth] = useState(startOfMonth(new Date()));
-    let [disabledDates, setDisabledDates] = useState(["20230506", "20230507", "20230510", "20230511", "20230512"])
-    let [checkoutOnly, setcheckoutOnly] = useState(["20230509", "20230505"])
+    let [lastCheckoutDay, setLastCheckoutDay] = useState();
 
-    let [checkIn, setCheckIn] = useState();
-    let [checkOut, setCheckout] = useState();
+    let { checkIn, setCheckIn, checkOut, setCheckout, disabledDates, checkoutOnly, maxDays } = props;
 
     let days = () => {
         let d = ["Mån", "Tis", "Ons", "Tors", "Fre", "Lör", "Sön"];
         return (<>
-            {d.map((x, i) => <th style={{ width: "40px", height: "40px" }}>{x}</th>)}
+            {d.map((x, i) => <th key={x} style={{ width: "40px", height: "40px" }}>{x}</th>)}
         </>)
     }
 
-    let getDay = (day) => {
-        let isDisabled = disabledDates.indexOf(format(day, "yyyyMMdd")) !== -1;
-        let isCheckoutOnly = checkoutOnly.indexOf(format(day, "yyyyMMdd")) !== -1 && !checkIn;
-        let isCheckIn = checkIn && format(day, "yyyyMMdd") === format(checkIn, "yyyyMMdd");
-        let isCheckOut = checkOut && format(day, "yyyyMMdd") === format(checkOut, "yyyyMMdd");
+    let onCheckIn = (day) => {
+        setCheckIn(day)
+        let lastDay = null;
+        for (var d of checkoutOnly) {
+            if (isBefore(d, day))
+                continue
+            if (lastDay === null) {
+                lastDay = d
+                continue
+            }
+            if (isBefore(d, lastDay))
+                lastDay = d
+        }
+        setLastCheckoutDay(lastDay)
+    }
 
+    useEffect(() => {
+        if (!checkOut)
+            setLastCheckoutDay();
+    }, [checkOut])
+
+    let isDayDisabled = (day) => {
+        return isSameDay(disabledDates[closestIndexTo(day, disabledDates)], day) || isBefore(day, checkIn) || isAfter(day, lastCheckoutDay) || isAfter(subDays(day, maxDays), checkIn);
+    }
+
+    let getDay = (day) => {
+        let isDisabled = isDayDisabled(day);
+        let isCheckoutOnly = isSameDay(checkoutOnly[closestIndexTo(day, checkoutOnly)], day) && !checkIn;
+        let isCheckIn = checkIn && isEqual(day, checkIn);
+        let isCheckOut = checkOut && isEqual(day, checkOut);
+        let isSelected = checkIn && checkOut && (isAfter(day, addDays(checkIn, -1)) && isBefore(day, addDays(checkOut, +1)));
+
+        let inner = <IconButton onClick={() => checkIn ? setCheckout(day) : onCheckIn(day)} className='day'>
+            <Typography>
+                {day.getDate()}
+            </Typography>
+        </IconButton>;
 
         if (isDisabled) {
-            return (
-                <td style={{ width: "40px", height: "40px" }}>
-                    <div style={{ width: "40px", height: "40px" }} className='calendar-day'>
-                        <IconButton disabled={true}>
-                            <Typography style={{ width: "40px", height: "40px", textDecoration: "line-through" }}>
-                                {day.getDate()}
-                            </Typography>
-                        </IconButton>
-                    </div>
-                </td>
-            )
+            inner =
+                <IconButton disabled={true} className='day day-disabled'>
+                    <Typography>
+                        {day.getDate()}
+                    </Typography>
+                </IconButton>
         }
 
         if (isCheckoutOnly) {
-            return (
-                <td style={{ width: "40px", height: "40px" }}>
-                    <div style={{ width: "40px", height: "40px" }} className='calendar-day'>
-                        <IconButton disableRipple>
-                            <Typography style={{ width: "40px", height: "40px" }} color={'gray'}>
-                                {day.getDate()}
-                            </Typography>
-                        </IconButton>
-                    </div>
-                </td>
-            )
-        }
-
-        return (
-            <td>
-                <div className='calendar-day'>
-                    <IconButton onClick={() => checkIn ? setCheckout(day) : setCheckIn(day)} style={{ background: isCheckIn ? "red" : "" }}>
-                        <Typography style={{ width: "40px", height: "40px" }}>
+            inner =
+                <Tooltip title="Endast utcheckning">
+                    <IconButton className='day day-check-out-only'>
+                        <Typography>
                             {day.getDate()}
                         </Typography>
                     </IconButton>
+                </Tooltip>
+        }
+
+        if (isCheckIn) {
+            inner =
+                <IconButton style={{ background: "black" }} className='day day-check-in'>
+                    <Typography>
+                        {day.getDate()}
+                    </Typography>
+                </IconButton>
+        }
+
+        if (isCheckOut) {
+            inner =
+                <IconButton style={{ background: "black" }} className='day day-check-out'>
+                    <Typography>
+                        {day.getDate()}
+                    </Typography>
+                </IconButton>
+        }
+
+        return (
+            <td className={isSelected ? ('selected' + ((isCheckOut ? " last" : "") || (isCheckIn ? " first" : ""))) : ""} key={format(day, "yyyyMMdd")}>
+                <div className='calendar-day'>
+                    {inner}
                 </div>
             </td >
         );
@@ -79,17 +112,19 @@ function DateRange(props) {
                 <h3 className='table-month'>{format(month, "MMMM")} {getYear(month)}</h3>
                 <table>
                     <thead>
-                        {days()}
+                        <tr>
+                            {days()}
+                        </tr>
                     </thead>
                     <tbody>
                         {Array(6).fill(0).map((_, y) =>
-                            <tr>
+                            <tr key={y}>
                                 {Array(7).fill(0).map((_, x) => {
                                     if (startCounting)
                                         curr = addDays(curr, 1)
                                     if (curr.getDay() === x + 1)
                                         startCounting = true
-                                    return startCounting && curr.getMonth() === month.getMonth() ? getDay(curr) : <td></td>;
+                                    return startCounting && curr.getMonth() === month.getMonth() ? getDay(curr) : <td key={x}></td>;
                                 })}
                             </tr>
                         )}

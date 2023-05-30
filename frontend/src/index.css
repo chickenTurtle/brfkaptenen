@@ -40,7 +40,8 @@ code {
 }
 
 table {
-  margin: 1rem
+  margin: 1rem;
+  border-spacing: 0px;
 }
 
 .table-month {
@@ -64,5 +65,56 @@ table {
 }
 
 .calendar-container {
-  width: 660px;
+  width: 877px;
+}
+
+.day:hover {
+  background-color: rgb(255 255 255 / 20%) !important;
+}
+
+.day-check-out-only:hover {
+  background-color: rgb(255 255 255 / 5%) !important;
+}
+
+.day>p {
+  height: 40px;
+  width: 40px;
+  padding-top: 7px;
+}
+
+.day-check-out-only>p {
+  color: gray;
+}
+
+.day-check-out-only .only-checkout-dropdown {
+  visibility: hidden;
+}
+
+.day-check-out-only:hover .only-checkout-dropdown {
+  visibility: visible;
+}
+
+.day-disabled>p {
+  text-decoration: line-through;
+}
+
+.only-checkout-dropdown {
+  position: absolute;
+  transform: translate(0, 150%);
+}
+
+.selected.first {
+  border-top-left-radius: 50% !important;
+  border-bottom-left-radius: 50% !important;
+  background-color: rgb(77, 77, 77);
+}
+
+.selected.last {
+  border-top-right-radius: 50% !important;
+  border-bottom-right-radius: 50% !important;
+  background-color: rgb(77, 77, 77);
+}
+
+.selected {
+  background-color: rgb(77, 77, 77);
 }

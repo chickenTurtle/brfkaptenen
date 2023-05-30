@@ -1,53 +1,17 @@
-import "react-date-range/dist/styles.css";
-import "react-date-range/dist/theme/default.css";
-import { DateRange } from "react-date-range";
-import { addDays, format } from 'date-fns';
 import { useEffect, useState } from "react";
-import { sv } from "date-fns/locale";
 import { book, getEvents } from "../api";
 import { Box, Button, Grid, InputAdornment, TextField, Typography } from "@mui/material";
 import Loading from "../components/Loading";
-
-
+import DateRange from "../components/DateRange";
 
 function DateSelect(props) {
-  let [range, setRange] = useState({
-    //startDate: null,
-    //endDate: null,
-    startDate: addDays(new Date(), 1),
-    endDate: addDays(new Date(), 1),
-    key: "selection",
-    showDateDisplay: false
-  });
-  let [disabledDates, setDisabledDates] = useState([]);
   let [loading, setLoading] = useState(true);
   let [error, setError] = useState();
-  let [events, setEvents] = useState([]);
 
-  let customDayContent = (day, events) => {
-    let isCheckoutOnly = false;
-    for (let event of events) {
-      if (format(day, "yyyyMMdd") === format(event, "yyyyMMdd")) {
-        isCheckoutOnly = true;
-      }
-    }
-
-    return (
-      <div>
-        <span style={isCheckoutOnly ? { backgroundColor: "gray" } : {}}>{format(day, "d")}</span>
-      </div>
-    )
-  }
-
-  let disabledDay = (day) => {
-    for (let t of events) {
-      if (format(t, "yyyyMMdd") === format(day, "yyyyMMdd")) {
-        return true
-      }
-    }
-
-    return false
-  }
+  let [disabledDates, setDisabledDates] = useState([]);
+  let [checkoutOnly, setCheckoutOnly] = useState([]);
+  let [checkIn, setCheckIn] = useState();
+  let [checkOut, setCheckout] = useState();
 
   let updateDisabledDates = () => {
     return getEvents(props.user).then((res) => res.json().then((events) => {
@@ -71,17 +35,17 @@ function DateSelect(props) {
           disabledDays.push(new Date(s));
         }
       }
-      setEvents(onlyCheckoutDays);
+      setCheckoutOnly(onlyCheckoutDays);
       setDisabledDates(disabledDays);
     }));
   }
 
   let onBook = () => {
-    if (range.startDate.getTime() === range.endDate.getTime()) {
+    if (checkIn.getTime() === checkOut.getTime()) {
       setError("Du måste boka minst 1 natt")
     } else {
       setLoading(true);
-      book(props.user, range.startDate, range.endDate)
+      book(props.user, checkIn, checkOut)
         .then((res) => {
           if (res.status === 200) {
             //setRange();
@@ -107,21 +71,9 @@ function DateSelect(props) {
     updateDisabledDates().then(() => setLoading(false))
   }, []);
 
-  let handleSelect = (ranges) => {
-    setError("");
-    if (format(ranges.selection.startDate, "yyyyMMdd") <= format(ranges.selection.endDate, "yyyyMMdd")) {
-      console.log(ranges);
-      setRange(ranges.selection);
-    }
-  };
-
   let clearDates = () => {
-    setRange({
-      startDate: addDays(new Date(), 1),
-      endDate: addDays(new Date(), 1),
-      key: "selection",
-      showDateDisplay: false
-    })
+    setCheckIn();
+    setCheckout();
   }
 
   return (
@@ -139,16 +91,13 @@ function DateSelect(props) {
         Övernattningslokalen
       </Typography>
       <DateRange
-        minDate={addDays(new Date(), 1)}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        setCheckIn={setCheckIn}
+        setCheckout={setCheckout}
         disabledDates={disabledDates}
-        ranges={[range]}
-        onChange={handleSelect}
-        locale={sv}
-        months={2}
-        direction={"horizontal"}
-        preventSnapRefocus
-        dayContentRenderer={(day) => customDayContent(day, events)}
-        disabledDay={disabledDay}
+        checkoutOnly={checkoutOnly}
+        maxDays={4}
       />
       <Box sx={{ mt: 5, mb: 3 }}>
         <Grid container spacing={2}>
@@ -157,7 +106,7 @@ function DateSelect(props) {
               label="Incheckning"
               disabled={true}
               color="primary"
-              value={range.startDate ? range.startDate.toLocaleDateString("sv") : "-"}
+              value={checkIn ? checkIn.toLocaleDateString("sv") : "-"}
               InputProps={{
                 readOnly: true,
                 endAdornment: <InputAdornment position="end">12:00</InputAdornment>,
@@ -169,7 +118,7 @@ function DateSelect(props) {
             <TextField
               label="Utcheckning"
               disabled={true}
-              value={range.endDate ? range.endDate.toLocaleDateString("sv") : "-"}
+              value={checkOut ? checkOut.toLocaleDateString("sv") : "-"}
               InputProps={{
                 readOnly: true,
                 endAdornment: <InputAdornment position="end">12:00</InputAdornment>,

@@ -28,8 +28,7 @@ function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
-      {/* <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} /> */}
-      <Route path="/*" element={<DateRange />} />
+      <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
     </Routes>
   );
 }
