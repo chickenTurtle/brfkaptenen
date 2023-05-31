@@ -10,8 +10,9 @@
         "firebase-debug.*.log"
       ],
       "predeploy": [
-        "npm --prefix \"$RESOURCE_DIR\" run lint",
-        "npm --prefix \"$RESOURCE_DIR\" run build"
+        "npm --prefix \"$RESOURCE_DIR\" run build",
+        "cp \"$RESOURCE_DIR\"/dev_creds.json \"$RESOURCE_DIR\"/lib/",
+        "cp \"$RESOURCE_DIR\"/.env \"$RESOURCE_DIR\"/lib/"
       ]
     }
   ]
