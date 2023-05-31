@@ -18,13 +18,13 @@ const app = express();
 app.use(bodyParser.json())
 app.use(cors({ origin: true }))
 
-app.get('/listevents', isAuthenticated, (req, res) => {
+app.get('/api/listevents', isAuthenticated, (req, res) => {
     listEvents().then((events) => {
         return res.status(200).send(events.data.items)
     })
 })
 
-app.post('/create', isAuthenticated, (req, res) => {
+app.post('/api/create', isAuthenticated, (req, res) => {
     let { startDate, endDate } = req.body;
     let { user } = req;
     if (startDate === endDate)
@@ -41,11 +41,11 @@ app.post('/create', isAuthenticated, (req, res) => {
         })
 })
 
-app.post('/delete', isAuthenticated, (req, res) => {
+app.post('/api/delete', isAuthenticated, (req, res) => {
     return res.status(200).send()
 })
 
-app.post('/signup', (req, res) => {
+app.post('/api/signup', (req, res) => {
     let { name, email, password } = req.body;
     if (!name)
         res.status(500).send({ message: "Name is required.", code: "name" })
@@ -56,6 +56,5 @@ app.post('/signup', (req, res) => {
             return res.status(500).send(err)
         });
 })
-
 
 export const api = onRequest(app)
