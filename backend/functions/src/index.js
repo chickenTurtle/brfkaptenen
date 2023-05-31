@@ -7,6 +7,7 @@ import * as bodyParser from 'body-parser';
 import { listEvents, signup, createEvent } from "./google";
 import { isAuthenticated } from './auth';
 import { start } from 'repl';
+import * as cors from 'cors';
 const serviceAccount = require(join(process.cwd(), "dev_creds.json"));
 
 admin.initializeApp({
@@ -15,6 +16,7 @@ admin.initializeApp({
 
 const app = express();
 app.use(bodyParser.json())
+app.use(cors({ origin: true }))
 
 app.get('/listevents', isAuthenticated, (req, res) => {
     listEvents().then((events) => {
