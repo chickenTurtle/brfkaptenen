@@ -1,4 +1,4 @@
-import { startOfMonth, addMonths, setDefaultOptions, format, addDays, getYear, isBefore, isEqual, closestIndexTo, isSameDay, isAfter, subDays } from 'date-fns';
+import { startOfMonth, addMonths, setDefaultOptions, format, addDays, getYear, isBefore, isEqual, closestIndexTo, isSameDay, isAfter, subDays, addHours } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import ArrowBackIos from "@mui/icons-material/ArrowBackIos"
 import ArrowForwardIos from "@mui/icons-material/ArrowForwardIos"
@@ -36,15 +36,16 @@ function DateRange(props) {
     }
 
     useEffect(() => {
-        if (!checkOut)
+        if (!checkOut || !checkIn)
             setLastCheckoutDay();
-    }, [checkOut])
+    }, [checkOut, checkIn])
 
     let isDayDisabled = (day) => {
-        return isSameDay(disabledDates[closestIndexTo(day, disabledDates)], day) || isBefore(day, checkIn) || isAfter(day, lastCheckoutDay) || isAfter(subDays(day, maxDays), checkIn);
+        return isBefore(day, addDays(new Date(), 1)) || isSameDay(disabledDates[closestIndexTo(day, disabledDates)], day) || isBefore(day, checkIn) || isAfter(day, lastCheckoutDay) || isAfter(subDays(day, maxDays), checkIn);
     }
 
     let getDay = (day) => {
+        day = addHours(day, 12)
         let isDisabled = isDayDisabled(day);
         let isCheckoutOnly = isSameDay(checkoutOnly[closestIndexTo(day, checkoutOnly)], day) && !checkIn;
         let isCheckIn = checkIn && isEqual(day, checkIn);
@@ -56,7 +57,6 @@ function DateRange(props) {
                 {day.getDate()}
             </Typography>
         </IconButton>;
-
         if (isDisabled)
             inner =
                 <IconButton disabled={true} className='day day-disabled'>
@@ -118,7 +118,7 @@ function DateRange(props) {
                                 {Array(7).fill(0).map((_, x) => {
                                     if (startCounting)
                                         curr = addDays(curr, 1)
-                                    if (curr.getDay() === x + 1)
+                                    if ((curr.getDay() + 6) % 7 === x)
                                         startCounting = true
                                     return startCounting && curr.getMonth() === month.getMonth() ? getDay(curr) : <td key={x}></td>;
                                 })}

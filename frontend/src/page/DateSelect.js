@@ -1,3 +1,4 @@
+import { differenceInDays } from 'date-fns';
 import { useEffect, useState } from "react";
 import { book, getEvents } from "../api";
 import { Box, Button, Grid, InputAdornment, Stack, TextField, Typography } from "@mui/material";
@@ -35,6 +36,8 @@ function DateSelect(props) {
           disabledDays.push(new Date(s));
         }
       }
+      onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => differenceInDays(onlyCheckoutDays[i - 1], onlyCheckoutDays[i]) !== -1)
+
       setCheckoutOnly(onlyCheckoutDays);
       setDisabledDates(disabledDays);
     }));
