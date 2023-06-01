@@ -9,7 +9,7 @@ function Loading(props) {
             direction="column"
             alignItems="center"
             justifyContent="center"
-            sx={{ minHeight: '100vh', marginTop: -16, background: "rgba(45,45,45,0.55)", zIndex: 1000 }}
+            sx={{ minHeight: '100vh', marginTop: -20, background: "rgba(45,45,45,0.55)", zIndex: 1000 }}
         >
             <Grid item xs={3}>
                 <CircularProgress />

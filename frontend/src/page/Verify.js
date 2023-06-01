@@ -16,6 +16,7 @@ function Verify(props) {
     let hash = query.get("hash");
     let email = query.get("email");
     let [verified, setVerfied] = useState(false);
+    let [loading, setLoading] = useState(false);
     let [error, setError] = useState();
 
     useEffect(() => {
@@ -29,12 +30,13 @@ function Verify(props) {
     }, [email, user]);
 
     let onVerify = () => {
+        setLoading(true)
         verify(user, email, hash).then((res) => {
             if (res.status === 200)
                 setVerfied(true)
             else
                 setError("Något gick fel, kunde inte verifiera")
-        })
+        }).finally(() => setLoading(false))
     };
 
     return verified ? (
@@ -59,7 +61,7 @@ function Verify(props) {
                 Vill du verifiera {email}?
             </Typography>
             <br />
-            <Button onClick={onVerify} variant="contained">
+            <Button onClick={onVerify} disabled={loading} variant="contained">
                 Verfiera
             </Button>
             <br />

@@ -10,6 +10,7 @@ import Logout from "./page/Logout";
 import Loading from "./components/Loading";
 import BookingComplete from "./page/BookingComplete";
 import Verify from "./page/Verify";
+import NavBar from "./components/NavBar";
 
 function App() {
   const [user, setUser] = useState("not_checked");
@@ -29,9 +30,9 @@ function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
-      <Route path="/complete" element={<BookingComplete />} />
-      <Route path="/verify" element={<Verify user={user} />} />
-      <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
+      <Route path="/complete" element={<NavBar><BookingComplete /></NavBar>} />
+      <Route path="/verify" element={<NavBar><Verify user={user} /></NavBar>} />
+      <Route path="/*" element={user ? <NavBar><DateSelect user={user} /></NavBar> : <Home />} />
     </Routes>
   );
 }
