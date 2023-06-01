@@ -8,6 +8,7 @@ import { listEvents, signup, createEvent } from "./google";
 import { isAuthenticated } from './auth';
 import { start } from 'repl';
 import * as cors from 'cors';
+import { sendMail, hashCode } from './email';
 const serviceAccount = require(join(process.cwd(), "dev_creds.json"));
 
 admin.initializeApp({
@@ -26,23 +27,53 @@ app.get('/api/listevents', isAuthenticated, (req, res) => {
 
 app.post('/api/create', isAuthenticated, (req, res) => {
     let { startDate, endDate } = req.body;
-    let { user } = req;
-    if (startDate === endDate)
-        return res.status(500).send({ message: "Du måste boka minst 1 natt" })
+    admin.auth().getUser(req.user.uid).then((user) => {
+        if (startDate === endDate)
+            return res.status(500).send({ message: "Du måste boka minst 1 natt" })
 
-    createEvent(startDate, endDate, user.displayName, user.email)
-        .then((event) => {
-            if (event.status == 200)
-                return res.status(200).send(event.data)
-            else
-                return res.status(500).send()
-        }).catch((err) => {
-            return res.status(err.code).send(err)
-        })
+        createEvent(startDate, endDate, user.displayName, user.email)
+            .then((event) => {
+                if (event.status == 200)
+                    return res.status(200).send(event.data)
+                else
+                    return res.status(500).send()
+            }).catch((err) => {
+                return res.status(err.code).send(err)
+            })
+    });
 })
 
 app.post('/api/delete', isAuthenticated, (req, res) => {
     return res.status(200).send()
+})
+
+app.post('/api/verify', isAuthenticated, (req, res) => {
+    let { email, hash } = req.body;
+
+    admin.auth().getUserByEmail(email).then((user) => {
+        if (`${hash}` === `${hashCode(user)}`) {
+            admin.auth().updateUser(user.uid, {
+                emailVerified: true
+            }).then(() => {
+                return res.status(200).send()
+            }).catch((err) => {
+                return res.status(500).send()
+            })
+        }
+        else
+            return res.status(500).send()
+    })
+
+})
+
+app.post('/api/verified', (req, res) => {
+    let { email } = req.body;
+    admin.auth().getUserByEmail(email).then((user) => {
+        if (user.emailVerified)
+            return res.status(200).send()
+        else
+            return res.status(500).send()
+    });
 })
 
 app.post('/api/signup', (req, res) => {
@@ -51,7 +82,12 @@ app.post('/api/signup', (req, res) => {
         res.status(500).send({ message: "Name is required.", code: "name" })
     signup(name, email, password)
         .then((user) => {
-            return res.status(200).send();
+            sendMail(user).then((err) => {
+                if (err)
+                    return res.status(500).send({ message: "Kunde inte skicka verifieringsmail" });
+                else
+                    return res.status(200).send();
+            })
         }).catch((err) => {
             return res.status(500).send(err)
         });

@@ -18,8 +18,8 @@ export async function isAuthenticated(req, res, next) {
     try {
         const decodedToken = await admin.auth().verifyIdToken(token);
         req.user = { uid: decodedToken.uid, role: decodedToken.role, email: decodedToken.email }
-        const user = await admin.auth().getUser(req.user.uid)
-        req.user = { ...req.user, ...user }
+        if (!decodedToken.email_verified)
+            return res.status(401).send({ message: 'Not verified' });
         return next();
     }
     catch (err) {

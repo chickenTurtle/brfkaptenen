@@ -1,13 +1,17 @@
-import { differenceInDays, isSameDay } from 'date-fns';
+import { differenceInDays, isSameDay, format } from 'date-fns';
 import { useEffect, useState } from "react";
 import { book, getEvents } from "../api";
 import { Box, Button, Grid, InputAdornment, Stack, TextField, Typography } from "@mui/material";
 import Loading from "../components/Loading";
 import DateRange from "../components/DateRange";
+import { useNavigate } from 'react-router-dom';
 
 function DateSelect(props) {
+  const navigate = useNavigate();
   let [loading, setLoading] = useState(true);
   let [error, setError] = useState();
+  let [isVerified, setIsVerified] = useState(true);
+
 
   let [disabledDates, setDisabledDates] = useState([]);
   let [checkoutOnly, setCheckoutOnly] = useState([]);
@@ -15,32 +19,39 @@ function DateSelect(props) {
   let [checkOut, setCheckout] = useState();
 
   let updateDisabledDates = () => {
-    return getEvents(props.user).then((res) => res.json().then((events) => {
-      let e = [];
-      let onlyCheckoutDays = [];
-      let disabledDays = [];
-      for (var item of events) {
-        let start = new Date(Date.parse(item.start.dateTime));
-        let end = new Date(Date.parse(item.end.dateTime));
-        e.push(start, end)
-      }
-      for (var i = 0; i <= e.length - 2; i = i + 2) {
-        onlyCheckoutDays.push(e[i])
-        for (var s = new Date(e[i]); s <= e[i + 1]; s.setDate(s.getDate() + 1)) {
-          if (s.getTime() === e[i].getTime() && e[i - 1]?.getTime() !== e[i]?.getTime()) {
-            continue
+    return getEvents(props.user).then((res) => {
+      if (res.status === 200) {
+        setIsVerified(true);
+        res.json().then((events) => {
+          let e = [];
+          let onlyCheckoutDays = [];
+          let disabledDays = [];
+          for (var item of events) {
+            let start = new Date(Date.parse(item.start.dateTime));
+            let end = new Date(Date.parse(item.end.dateTime));
+            e.push(start, end)
           }
-          if (s.getTime() === e[i + 1].getTime() && e[i + 1]?.getTime() !== e[i + 2]?.getTime()) {
-            continue
+          for (var i = 0; i <= e.length - 2; i = i + 2) {
+            onlyCheckoutDays.push(e[i])
+            for (var s = new Date(e[i]); s <= e[i + 1]; s.setDate(s.getDate() + 1)) {
+              if (s.getTime() === e[i].getTime() && e[i - 1]?.getTime() !== e[i]?.getTime()) {
+                continue
+              }
+              if (s.getTime() === e[i + 1].getTime() && e[i + 1]?.getTime() !== e[i + 2]?.getTime()) {
+                continue
+              }
+              disabledDays.push(new Date(s));
+            }
           }
-          disabledDays.push(new Date(s));
-        }
+          onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => differenceInDays(onlyCheckoutDays[i - 1], onlyCheckoutDays[i]) !== -1);
+          onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => !disabledDays.find((x) => isSameDay(x, d)));
+          setCheckoutOnly(onlyCheckoutDays);
+          setDisabledDates(disabledDays);
+        });
       }
-      onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => differenceInDays(onlyCheckoutDays[i - 1], onlyCheckoutDays[i]) !== -1);
-      onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => !disabledDays.find((x) => isSameDay(x, d)));
-      setCheckoutOnly(onlyCheckoutDays);
-      setDisabledDates(disabledDays);
-    }));
+      else
+        setIsVerified(false);
+    });
   }
 
   let onBook = () => {
@@ -51,7 +62,7 @@ function DateSelect(props) {
       book(props.user, checkIn, checkOut)
         .then((res) => {
           if (res.status === 200) {
-            //setRange();
+            navigate(`/complete?from=${format(checkIn, "yyyy-MM-dd")}&to=${format(checkOut, "yyyy-MM-dd")}`)
           }
           else if (res.status === 500) {
             res.json().then((err) => {
@@ -79,7 +90,7 @@ function DateSelect(props) {
     setCheckout();
   }
 
-  return (
+  return isVerified ? (
     <Box sx={{
       marginTop: 12,
       display: 'flex',
@@ -100,7 +111,7 @@ function DateSelect(props) {
         setCheckout={setCheckout}
         disabledDates={disabledDates}
         checkoutOnly={checkoutOnly}
-        maxDays={4}
+        maxDays={process.env.REACT_APP_MAX_BOOKING_DAYS}
       />
       <Box sx={{ mt: 5, mb: 3 }}>
         <Grid container spacing={2}>
@@ -143,6 +154,21 @@ function DateSelect(props) {
         </Button>
       </Stack>
     </Box >
+  ) : (
+    <Box sx={{
+      marginTop: 12,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    }}>
+      {loading ? <Loading overlay={true} /> : ""}
+      <Typography component="h1" variant="h5">
+        Ditt konto är inte verifierat
+      </Typography>
+      <Typography variant="subtitle1" marginBottom={2}>
+        Styrelsen verifierar det snarast
+      </Typography>
+    </Box>
   );
 }
 

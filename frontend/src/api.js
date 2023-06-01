@@ -39,5 +39,15 @@ export let deleteBooking = (user, id) => {
 
 export let signUp = (name, email, password) => {
     const url = baseUrl + '/api/signup';
-    return post(url, null, { name, email, password }).then((r) => r)
+    return post(url, null, { name, email, password });
+};
+
+export let verify = (user, email, hash) => {
+    const url = baseUrl + '/api/verify';
+    return post(url, user.accessToken, { email, hash });
+};
+
+export let isVerified = (user, email) => {
+    const url = baseUrl + '/api/verified';
+    return post(url, user.accessToken, { email });
 };
