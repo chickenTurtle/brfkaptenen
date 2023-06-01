@@ -1,15 +1,23 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
+
+function useQuery() {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
+}
 
 function Login() {
   const navigate = useNavigate();
+  let query = useQuery();
+
   let [email, setEmail] = useState("");
   let [loading, setLoading] = useState(false);
   let [password, setPassword] = useState("");
   let [error, setError] = useState();
+  let next = query.get("next");
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
@@ -22,7 +30,10 @@ function Login() {
     setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        navigate("/");
+        if (next)
+          navigate(next);
+        else
+          navigate("/");
       })
       .catch((error) => {
         setError(error);

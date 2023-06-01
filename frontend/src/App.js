@@ -30,7 +30,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
       <Route path="/complete" element={<BookingComplete />} />
-      <Route path="/verify" element={user ? <Verify user={user} /> : <Login />} />
+      <Route path="/verify" element={<Verify user={user} />} />
       <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
     </Routes>
   );

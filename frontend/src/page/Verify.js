@@ -1,5 +1,5 @@
 import { Box, Button, Typography } from "@mui/material"
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { isVerified, verify } from "../api";
 import { useEffect, useMemo, useState } from "react";
 
@@ -9,19 +9,24 @@ function useQuery() {
 }
 
 function Verify(props) {
-    let { user } = props;
+    let navigate = useNavigate();
     let query = useQuery();
+    let { user } = props;
+
     let hash = query.get("hash");
     let email = query.get("email");
     let [verified, setVerfied] = useState(false);
     let [error, setError] = useState();
 
     useEffect(() => {
-        isVerified(user, email).then((res) => {
-            if (res.status === 200)
-                setVerfied(true)
-        })
-    }, []);
+        if (!user)
+            navigate(`/login?next=/verify?${query}`)
+        if (user)
+            isVerified(user, email).then((res) => {
+                if (res.status === 200)
+                    setVerfied(true)
+            })
+    }, [email, user]);
 
     let onVerify = () => {
         verify(user, email, hash).then((res) => {
