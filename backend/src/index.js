@@ -82,7 +82,7 @@ app.post('/api/signup', (req, res) => {
         res.status(500).send({ message: "Name is required.", code: "name" })
     signup(name, email, password)
         .then((user) => {
-            sendMail(user).then((err) => {
+            sendMail(user).then((_, err) => {
                 if (err)
                     return res.status(500).send({ message: "Kunde inte skicka verifieringsmail" });
                 else

@@ -1,11 +1,13 @@
 const nodemailer = require('nodemailer');
 
 let transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: "465",
     auth: {
         user: process.env.GOOGLE_ACCOUNT,
         pass: process.env.GOOGLE_PASSWORD
-    }
+    },
+    secure: true
 });
 
 function hashCode(user) {
@@ -23,7 +25,7 @@ let sendMail = (user) => {
     let link = `https://brfkaptenen-8d5d3.web.app/verify?hash=${hashCode(user)}&email=${user.email}`;
     const mailOptions = {
         from: `BRF Kaptenen Bokningssida <${process.env.GOOGLE_ACCOUNT}>`,
-        to: 'kaptenenbrf@gmail.com',
+        to: process.env.GOOGLE_ACCOUNT,
         subject: `Bokningssytem: Verfiera konto för ${user.displayName}`,
         html: `<p style="font-size: 20px;">Verifiera kontot</p>
                 Namn: ${user.displayName}

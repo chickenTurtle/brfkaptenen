@@ -82,5 +82,3 @@ export const listEvents = listEvents;
 export const createEvent = createEvent;
 export const deleteEvent = deleteEvent;
 export const signup = signup;
-
-
