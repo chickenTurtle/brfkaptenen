@@ -35,7 +35,7 @@ async function createEvent(startDate, endDate, name, email) {
         calendarId: process.env.CALENDAR_ID,
         requestBody: {
             summary: `${name}`,
-            description: `Bokning av övernattningslokalen av: ${email}`,
+            description: `Bokning av övernattningslokalen av: ${name}, ${email}`,
             hangoutLink: null,
             reminders: {
                 overrides: [],
@@ -48,6 +48,12 @@ async function createEvent(startDate, endDate, name, email) {
             end: {
                 dateTime: endDate,
                 timeZone: "Europe/Stockholm"
+            },
+            extendedProperties: {
+                private: {
+                    email,
+                    name
+                }
             }
         }
     })

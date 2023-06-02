@@ -45,7 +45,8 @@ function DateRange(props) {
             || isSameDay(disabledDates[closestIndexTo(day, disabledDates)], day)
             || isBefore(day, checkIn)
             || isAfter(day, lastCheckoutDay)
-            || isAfter(subDays(day, maxDays), checkIn);
+            || isAfter(subDays(day, maxDays), checkIn)
+            || maxDays === 0;
     }
 
     let getDay = (day) => {

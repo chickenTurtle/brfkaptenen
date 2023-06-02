@@ -1,4 +1,4 @@
-import { differenceInDays, isSameDay, format } from 'date-fns';
+import { differenceInDays, isSameDay, format, differenceInCalendarDays } from 'date-fns';
 import { useEffect, useState } from "react";
 import { book, getEvents } from "../api";
 import { Box, Button, Grid, InputAdornment, Stack, TextField, Typography } from "@mui/material";
@@ -12,11 +12,11 @@ function DateSelect(props) {
   let [error, setError] = useState();
   let [isVerified, setIsVerified] = useState(true);
 
-
   let [disabledDates, setDisabledDates] = useState([]);
   let [checkoutOnly, setCheckoutOnly] = useState([]);
   let [checkIn, setCheckIn] = useState();
   let [checkOut, setCheckout] = useState();
+  let [maxDays, setMaxDays] = useState(process.env.REACT_APP_MAX_BOOKING_DAYS);
 
   let updateDisabledDates = () => {
     return getEvents(props.user).then((res) => {
@@ -26,11 +26,13 @@ function DateSelect(props) {
           let e = [];
           let onlyCheckoutDays = [];
           let disabledDays = [];
+
           for (var item of events) {
             let start = new Date(Date.parse(item.start.dateTime));
             let end = new Date(Date.parse(item.end.dateTime));
             e.push(start, end)
           }
+
           for (var i = 0; i <= e.length - 2; i = i + 2) {
             onlyCheckoutDays.push(e[i])
             for (var s = new Date(e[i]); s <= e[i + 1]; s.setDate(s.getDate() + 1)) {
@@ -43,10 +45,19 @@ function DateSelect(props) {
               disabledDays.push(new Date(s));
             }
           }
+
           onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => differenceInDays(onlyCheckoutDays[i - 1], onlyCheckoutDays[i]) !== -1);
           onlyCheckoutDays = onlyCheckoutDays.filter((d, i) => !disabledDays.find((x) => isSameDay(x, d)));
           setCheckoutOnly(onlyCheckoutDays);
           setDisabledDates(disabledDays);
+
+          let userBookedDays = events.filter((event) => event.extendedProperties?.private.email === props.user.email)
+            .reduce((sum, event) => differenceInCalendarDays(new Date(event.end.dateTime), new Date(event.start.dateTime)) + sum, 0)
+
+          setMaxDays(process.env.REACT_APP_MAX_BOOKING_DAYS - userBookedDays);
+
+          if (userBookedDays - process.env.REACT_APP_MAX_BOOKING_DAYS === 0)
+            setError("Du har bokat maximala 14 nätter")
         });
       }
       else
@@ -111,7 +122,7 @@ function DateSelect(props) {
         setCheckout={setCheckout}
         disabledDates={disabledDates}
         checkoutOnly={checkoutOnly}
-        maxDays={process.env.REACT_APP_MAX_BOOKING_DAYS}
+        maxDays={maxDays}
       />
       <Box sx={{ mt: 5, mb: 3 }}>
         <Grid container spacing={2}>
@@ -146,10 +157,10 @@ function DateSelect(props) {
         {error ? error : ""}
       </Typography>
       <Stack direction="row" spacing={2}>
-        <Button variant="contained" onClick={() => clearDates()} disabled={loading}>
+        <Button variant="contained" onClick={() => clearDates()} disabled={loading || maxDays === 0}>
           Rensa datum
         </Button>
-        <Button variant="contained" onClick={() => onBook()} disabled={loading}>
+        <Button variant="contained" onClick={() => onBook()} disabled={loading || maxDays === 0}>
           Boka
         </Button>
       </Stack>
