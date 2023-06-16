@@ -3,13 +3,15 @@ import { Routes, Route } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import Home from "./page/Home";
-import DateSelect from "./page/DateSelect";
+import Apartment from "./page/Apartment";
 import SignUp from "./page/SignUp";
 import Login from "./page/Login";
 import Logout from "./page/Logout";
 import Loading from "./components/Loading";
 import BookingComplete from "./page/BookingComplete";
 import Verify from "./page/Verify";
+import Dashboard from "./page/Dashboard";
+import Laundry from "./page/Laundry";
 import { AppBar, Box, Button, Toolbar, Typography, Link } from "@mui/material";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +28,7 @@ function NavBar(props) {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               <Link href="/" color="inherit" underline="hover">BRF Kaptenen</Link>
             </Typography>
+            <Button color="inherit" element="a" href="https://google.se">Dokument</Button>
             <Button color="inherit" onClick={() => navigate("/logout")}>Logga ut</Button>
           </Toolbar>
         </AppBar>
@@ -67,7 +70,9 @@ function App() {
             <Route path="/logout" element={<Logout />} />
             <Route path="/complete" element={<BookingComplete />} />
             <Route path="/verify" element={<Verify user={user} />} />
-            <Route path="/*" element={user ? <DateSelect user={user} /> : <Home />} />
+            <Route path="/apartment" element={<Apartment user={user} />} />
+            <Route path="/laundry" element={<Laundry user={user} />} />
+            <Route path="/*" element={user ? <Dashboard /> : <Home />} />
           </Routes>
         }
       </NavBar>

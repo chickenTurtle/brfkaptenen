@@ -6,7 +6,7 @@ import Loading from "../components/Loading";
 import DateRange from "../components/DateRange";
 import { useNavigate } from 'react-router-dom';
 
-function DateSelect(props) {
+function Apartment(props) {
   const navigate = useNavigate();
   let [loading, setLoading] = useState(true);
   let [error, setError] = useState();
@@ -95,6 +95,11 @@ function DateSelect(props) {
   useEffect(() => {
     updateDisabledDates().then(() => setLoading(false))
   }, []);
+
+  useEffect(() => {
+    if (!props.user)
+      navigate(`/`)
+  }, [props.user]);
 
   let clearDates = () => {
     setCheckIn();
@@ -202,4 +207,4 @@ const style = {
   }
 }
 
-export default DateSelect;
+export default Apartment;
