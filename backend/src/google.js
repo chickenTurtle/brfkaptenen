@@ -22,7 +22,6 @@ async function listEvents() {
     return calendar.events.list({
         calendarId: process.env.CALENDAR_ID,
         timeMin: new Date().toISOString(),
-        maxResults: 10,
         singleEvents: true,
         orderBy: 'startTime',
     });
@@ -68,6 +67,17 @@ async function deleteEvent(eventId) {
     })
 }
 
+async function listBookings(email) {
+    await authorize();
+    const calendar = google.calendar({ version: 'v3' });
+    return calendar.events.list({
+        calendarId: process.env.CALENDAR_ID,
+        orderBy: 'startTime',
+        singleEvents: true,
+        privateExtendedProperty: `email=${email}`
+    });
+}
+
 async function signup(name, email, password) {
     return admin.auth().createUser({
         email: email,
@@ -79,6 +89,7 @@ async function signup(name, email, password) {
 }
 
 export const listEvents = listEvents;
+export const listBookings = listBookings;
 export const createEvent = createEvent;
 export const deleteEvent = deleteEvent;
 export const signup = signup;

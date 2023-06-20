@@ -32,6 +32,11 @@ export let getEvents = (user) => {
     return get(url, user.accessToken);
 };
 
+export let getBookings = (user) => {
+    const url = baseUrl + '/api/bookings';
+    return get(url, user.accessToken);
+};
+
 export let deleteBooking = (user, id) => {
     const url = baseUrl + '/api/delete';
     return post(url, user.accessToken, { id });

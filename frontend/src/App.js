@@ -12,6 +12,7 @@ import BookingComplete from "./page/BookingComplete";
 import Verify from "./page/Verify";
 import Dashboard from "./page/Dashboard";
 import Laundry from "./page/Laundry";
+import Bookings from "./page/Bookings";
 import { AppBar, Box, Button, Toolbar, Typography, Link } from "@mui/material";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +30,7 @@ function NavBar(props) {
               <Link href="/" color="inherit" underline="hover">BRF Kaptenen</Link>
             </Typography>
             <Button color="inherit" element="a" href="https://google.se">Dokument</Button>
+            <Button color="inherit" onClick={() => navigate("/bookings")}>Mina bokningar</Button>
             <Button color="inherit" onClick={() => navigate("/logout")}>Logga ut</Button>
           </Toolbar>
         </AppBar>
@@ -72,6 +74,7 @@ function App() {
             <Route path="/verify" element={<Verify user={user} />} />
             <Route path="/apartment" element={<Apartment user={user} />} />
             <Route path="/laundry" element={<Laundry user={user} />} />
+            <Route path="/bookings" element={<Bookings user={user} />} />
             <Route path="/*" element={user ? <Dashboard /> : <Home />} />
           </Routes>
         }

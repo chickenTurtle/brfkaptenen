@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as admin from 'firebase-admin'
 import { join } from 'path';
 import * as bodyParser from 'body-parser';
-import { listEvents, signup, createEvent } from "./google";
+import { listEvents, signup, createEvent, listBookings } from "./google";
 import { isAuthenticated } from './auth';
 import { start } from 'repl';
 import * as cors from 'cors';
@@ -21,6 +21,13 @@ app.use(cors({ origin: true }))
 
 app.get('/api/listevents', isAuthenticated, (req, res) => {
     listEvents().then((events) => {
+        return res.status(200).send(events.data.items)
+    })
+})
+
+app.get('/api/bookings', isAuthenticated, (req, res) => {
+    listBookings(req.user.email).then((events) => {
+        console.log(events.data.items)
         return res.status(200).send(events.data.items)
     })
 })
