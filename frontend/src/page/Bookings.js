@@ -1,5 +1,5 @@
-import { Box, Button, Typography } from "@mui/material";
-import { format } from "date-fns";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { format, differenceInDays, day } from "date-fns";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getBookings } from "../api";
@@ -9,6 +9,7 @@ function Bookings(props) {
     let navigate = useNavigate();
     let [bookings, setBookings] = useState([]);
     let [loading, setLoading] = useState(true);
+    let days = ["Sön", "Mån", "Tis", "Ons", "Tors", "Fre", "Lör"];
 
     let updateBookings = () => {
         return getBookings(props.user).then((res) => res.json().then((events) => {
@@ -30,8 +31,9 @@ function Bookings(props) {
         <Box sx={{
             marginTop: 12,
             display: 'flex',
+            flexWrap: 'wrap',
             flexDirection: 'column',
-            alignItems: 'center',
+            alignItems: 'center'
         }}>
             {loading ? <Loading overlay={true} /> : ""}
             <Typography component="h1" variant="h5">
@@ -42,14 +44,29 @@ function Bookings(props) {
                     <Typography variant="subtitle1" marginBottom={2} textAlign="center">
                         Övernattningslokalen
                     </Typography>
-                    <ol>{bookings.toReversed().map((event) => {
+                    {bookings.toReversed().map((event) => {
+                        let start = new Date(event.start.dateTime);
+                        let end = new Date(event.end.dateTime);
+                        let length = differenceInDays(end, start);
+                        let price = length * process.env.REACT_APP_PRICE;
                         return (
-                            <li>
-                                {format(new Date(event.start.dateTime), "yyyy-MM-dd")} - {format(new Date(event.end.dateTime), "yyyy-MM-dd")}
-                            </li>
+                            <Card sx={{ maxWidth: 300, m: 1 }} raised={!(new Date() > end)}>
+                                <CardContent>
+                                    <Typography variant="text" fontWeight={600}>
+                                        {format(start, "yyyy-MM-dd")} 	→ {format(end, "yyyy-MM-dd")}
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="text">
+                                        {days[start.getDay()]}dag - {days[end.getDay()]}dag
+                                    </Typography>
+                                    <br />
+                                    <Typography variant="text" color="grey.400">
+                                        {price} kr - {length} {length > 1 ? "nätter" : "natt"}
+                                    </Typography>
+                                </CardContent>
+                            </Card>
                         )
                     })}
-                    </ol>
                 </>
                 :
                 <>
