@@ -53,6 +53,7 @@ app.post("/api/create", isAuthenticated, (req, res) => {
           else return res.status(500).send();
         })
         .catch((err) => {
+          console.log(err);
           return res.status(err.code).send(err);
         });
     });

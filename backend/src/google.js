@@ -24,6 +24,7 @@ async function authorize() {
 
 async function listEvents() {
   let auth = await authorize();
+  auth.subject = "david.forslof@kaptenenbrf.org";
   const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.list({
     calendarId: process.env.CALENDAR_ID,
@@ -35,6 +36,7 @@ async function listEvents() {
 
 async function createEvent(startDate, endDate, name, email) {
   let auth = await authorize();
+  auth.subject = "david.forslof@kaptenenbrf.org";
   const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.insert({
     calendarId: process.env.CALENDAR_ID,
@@ -66,6 +68,7 @@ async function createEvent(startDate, endDate, name, email) {
 
 async function deleteEvent(eventId) {
   let auth = await authorize();
+  auth.subject = "david.forslof@kaptenenbrf.org";
   const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.delete({
     calendarId: process.env.CALENDAR_ID,
@@ -75,6 +78,7 @@ async function deleteEvent(eventId) {
 
 async function listBookings(email) {
   let auth = await authorize();
+  auth.subject = "david.forslof@kaptenenbrf.org";
   const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.list({
     calendarId: process.env.CALENDAR_ID,
