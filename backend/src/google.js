@@ -107,11 +107,6 @@ async function sendMail(user) {
   });
 }
 
-sendMail({
-  displayName: "David",
-  email: "forslof.d@gmail.com",
-});
-
 export const listEvents = listEvents;
 export const listBookings = listBookings;
 export const createEvent = createEvent;
