@@ -4,11 +4,17 @@ import * as express from "express";
 import * as admin from "firebase-admin";
 import { join } from "path";
 import * as bodyParser from "body-parser";
-import { listEvents, signup, createEvent, listBookings } from "./google";
+import {
+  listEvents,
+  signup,
+  createEvent,
+  listBookings,
+  sendMail,
+} from "./google";
 import { isAuthenticated } from "./auth";
 import { start } from "repl";
 import * as cors from "cors";
-import { sendMail, hashCode } from "./email";
+import { hashCode } from "./email";
 const serviceAccount = require(join(process.cwd(), "creds.json"));
 
 admin.initializeApp({

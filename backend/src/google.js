@@ -1,10 +1,17 @@
-import { promises as fs } from "fs";
 import { join } from "path";
 import { authenticate } from "@google-cloud/local-auth";
 import { google } from "googleapis";
 import * as admin from "firebase-admin";
+import { hashCode, createEmail } from "./email";
 
-const SCOPES = ["https://www.googleapis.com/auth/calendar"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/gmail.send",
+  "https://www.googleapis.com/auth/gmail.readonly",
+  "https://www.googleapis.com/auth/gmail.labels",
+  "https://mail.google.com/",
+  "https://www.googleapis.com/auth/gmail.metadata",
+];
 const CREDENTIALS_PATH = join(process.cwd(), "creds.json");
 
 async function authorize() {
@@ -12,13 +19,12 @@ async function authorize() {
     scopes: SCOPES,
     keyFile: CREDENTIALS_PATH,
   });
-  const authClient = await auth.getClient();
-  return google.options({ auth: authClient });
+  return auth.getClient();
 }
 
 async function listEvents() {
-  await authorize();
-  const calendar = google.calendar({ version: "v3" });
+  let auth = await authorize();
+  const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.list({
     calendarId: process.env.CALENDAR_ID,
     timeMin: new Date().toISOString(),
@@ -28,8 +34,8 @@ async function listEvents() {
 }
 
 async function createEvent(startDate, endDate, name, email) {
-  await authorize();
-  const calendar = google.calendar({ version: "v3" });
+  let auth = await authorize();
+  const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.insert({
     calendarId: process.env.CALENDAR_ID,
     requestBody: {
@@ -59,8 +65,8 @@ async function createEvent(startDate, endDate, name, email) {
 }
 
 async function deleteEvent(eventId) {
-  await authorize();
-  const calendar = google.calendar({ version: "v3" });
+  let auth = await authorize();
+  const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.delete({
     calendarId: process.env.CALENDAR_ID,
     eventId: eventId,
@@ -68,8 +74,8 @@ async function deleteEvent(eventId) {
 }
 
 async function listBookings(email) {
-  await authorize();
-  const calendar = google.calendar({ version: "v3" });
+  let auth = await authorize();
+  const calendar = google.calendar({ version: "v3", auth: auth });
   return calendar.events.list({
     calendarId: process.env.CALENDAR_ID,
     orderBy: "startTime",
@@ -88,8 +94,27 @@ async function signup(name, email, password) {
   });
 }
 
+async function sendMail(user) {
+  let client = await authorize();
+  client.subject = "david.forslof@kaptenenbrf.org";
+  const gmail = google.gmail({ version: "v1", auth: client });
+  let mail = await createEmail(user);
+  return gmail.users.messages.send({
+    userId: "david.forslof@kaptenenbrf.org",
+    resource: {
+      raw: mail,
+    },
+  });
+}
+
+sendMail({
+  displayName: "David",
+  email: "forslof.d@gmail.com",
+});
+
 export const listEvents = listEvents;
 export const listBookings = listBookings;
 export const createEvent = createEvent;
 export const deleteEvent = deleteEvent;
 export const signup = signup;
+export const sendMail = sendMail;
