@@ -21,7 +21,7 @@ const createEmail = async (user) => {
 
   const options = {
     from: `"Kaptenen BRF" <styrelsen@kaptenenbrf.org>`,
-    to: user.email,
+    to: "styrelsen@kaptenenbrf.org",
     subject: `Bokningssytem: Verfiera konto för ${user.displayName}`,
     html: `<p style="font-size: 20px;">Verifiera kontot</p>
     Namn: ${user.displayName}

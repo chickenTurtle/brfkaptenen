@@ -62,7 +62,7 @@ app.post("/api/delete", isAuthenticated, (req, res) => {
   return res.status(200).send();
 });
 
-app.post("/api/verify", isAuthenticated, (req, res) => {
+app.post("/api/verify", (req, res) => {
   let { email, hash } = req.body;
 
   admin
@@ -87,6 +87,7 @@ app.post("/api/verify", isAuthenticated, (req, res) => {
 
 app.post("/api/verified", (req, res) => {
   let { email } = req.body;
+
   admin
     .auth()
     .getUserByEmail(email)
