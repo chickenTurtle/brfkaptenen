@@ -9,6 +9,7 @@ function useQuery() {
 }
 
 function Verify(props) {
+  let navigate = useNavigate();
   let query = useQuery();
   let { user } = props;
 
@@ -19,10 +20,16 @@ function Verify(props) {
   let [error, setError] = useState();
 
   useEffect(() => {
-    isVerified(user, email).then((res) => {
-      if (res.status === 200) setVerfied(true);
-    });
-  }, [email, user]);
+    if (!props.user)
+      navigate(`/login?next=/verify?email=${email}&hash=${hash}`);
+  }, [props.user, email, hash, navigate]);
+
+  useEffect(() => {
+    if (props.user)
+      isVerified(user, email).then((res) => {
+        if (res.status === 200) setVerfied(true);
+      });
+  }, [email, user, props.user]);
 
   let onVerify = () => {
     setLoading(true);

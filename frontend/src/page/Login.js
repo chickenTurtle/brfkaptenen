@@ -1,27 +1,21 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Box, Button, Grid, TextField, Typography } from "@mui/material";
-
-function useQuery() {
-  const { search } = useLocation();
-  return useMemo(() => new URLSearchParams(search), [search]);
-}
 
 function Login() {
   const navigate = useNavigate();
-  let query = useQuery();
+  const s = useLocation();
 
   let [email, setEmail] = useState("");
   let [loading, setLoading] = useState(false);
   let [password, setPassword] = useState("");
   let [error, setError] = useState();
-  let next = query.get("next");
 
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      navigate("/")
+      navigate("/");
     }
   });
 
@@ -30,10 +24,9 @@ function Login() {
     setLoading(true);
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
-        if (next)
-          navigate(next);
-        else
-          navigate("/");
+        let next = s.search.split("?next=")[1];
+        if (next) navigate(next);
+        else navigate("/");
       })
       .catch((error) => {
         setError(error);
@@ -47,9 +40,9 @@ function Login() {
     <Box
       sx={{
         marginTop: 12,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
       }}
     >
       <Typography component="h1" variant="h5" marginBottom={2}>
@@ -97,18 +90,26 @@ function Login() {
         </Button>
         <Grid container>
           <Grid item xs>
-            <Button type="link" variant="body2" onClick={() => navigate("/forgot")}>
+            <Button
+              type="link"
+              variant="body2"
+              onClick={() => navigate("/forgot")}
+            >
               Glömt lösenord
             </Button>
           </Grid>
           <Grid item>
-            <Button type="link" variant="body2" onClick={() => navigate("/signup")}>
+            <Button
+              type="link"
+              variant="body2"
+              onClick={() => navigate("/signup")}
+            >
               Skapa konto
             </Button>
           </Grid>
         </Grid>
       </Box>
-    </Box >
+    </Box>
   );
 }
 

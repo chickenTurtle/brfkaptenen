@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { Routes, Route } from "react-router-dom";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import Home from "./page/Home";
 import Apartment from "./page/Apartment";
 import SignUp from "./page/SignUp";
 import Login from "./page/Login";
-import Logout from "./page/Logout";
 import Loading from "./components/Loading";
 import BookingComplete from "./page/BookingComplete";
 import Verify from "./page/Verify";
 import Dashboard from "./page/Dashboard";
-import Laundry from "./page/Laundry";
+import Forgot from "./page/Forgot";
 import Bookings from "./page/Bookings";
 import { AppBar, Box, Button, Toolbar, Typography, Link } from "@mui/material";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
@@ -20,7 +19,6 @@ import { useNavigate } from "react-router-dom";
 function NavBar(props) {
   let navigate = useNavigate();
   let { user } = props;
-  console.log(user);
 
   return (
     <>
@@ -45,13 +43,19 @@ function NavBar(props) {
                   BRF Kaptenen
                 </Link>
               </Typography>
-              <Button color="inherit" element="a" href="https://google.se">
+              {/* <Button color="inherit" element="a" href="https://google.se">
                 Dokument
-              </Button>
+              </Button> */}
               <Button color="inherit" onClick={() => navigate("/bookings")}>
                 Mina bokningar
               </Button>
-              <Button color="inherit" onClick={() => navigate("/logout")}>
+              <Button
+                color="inherit"
+                onClick={() => {
+                  signOut(auth);
+                  navigate("/");
+                }}
+              >
                 Logga ut
               </Button>
             </Toolbar>
@@ -94,11 +98,11 @@ function App() {
           <Routes>
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/logout" element={<Logout />} />
+            <Route path="/forgot" element={<Forgot />} />
             <Route path="/complete" element={<BookingComplete />} />
             <Route path="/verify" element={<Verify user={user} />} />
             <Route path="/apartment" element={<Apartment user={user} />} />
-            <Route path="/laundry" element={<Laundry user={user} />} />
+            {/* <Route path="/laundry" element={<Laundry user={user} />} /> */}
             <Route path="/bookings" element={<Bookings user={user} />} />
             <Route path="/*" element={user ? <Dashboard /> : <Home />} />
           </Routes>
