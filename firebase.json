@@ -1,5 +1,36 @@
 {
   "hosting": {
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          {
+            "key": "Content-Security-Policy",
+            "value": "default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests; connect-src 'self' https://identitytoolkit.googleapis.com"
+          },
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "Referrer-Policy",
+            "value": "strict-origin-when-cross-origin"
+          },
+          {
+            "key": "Permissions-Policy",
+            "value": "geolocation=(), microphone=(), camera=(), accelerometer=(), autoplay=(), display-capture=(), encrypted-media=(), gyroscope=(), magnetometer=(), payment=(), picture-in-picture=(), sync-xhr=(), usb=(), xr-spatial-tracking=()"
+          },
+          {
+            "key": "Strict-Transport-Security",
+            "value": "max-age=31536000; includeSubDomains; preload"
+          }
+        ]
+      }
+    ],
     "public": "frontend/build",
     "ignore": [
       "firebase.json",
